@@ -1,0 +1,7 @@
+{
+	"name": "Pickup Rotate",
+	"version": "0.0.1",
+	"author": "ebe1.kenobi",
+	"description": "New pickup to flip or rotate the screen",
+	"dll": "TFModFortRisePickupRotate.dll"
+}
