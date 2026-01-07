@@ -58,7 +58,8 @@ namespace TFModFortRisePickupRotate
       this.Collider = new Hitbox(16f, 16f, -8f, -8f);
       this.Tag(GameTags.PlayerCollectible);
 
-      this.graphic = new Image(TFGame.Atlas["pickups/arrowPickup"]); //todo changer le sprite
+      //this.graphic = new Image(TFGame.Atlas["pickups/arrowPickup"]); //todo changer le sprite
+      this.graphic = new Image(TFModFortRisePickupRotateModule.RotateAtlas["variants/rotate"]); //todo changer le sprite
       this.graphic.CenterOrigin();
       this.Add(this.graphic);
     }
