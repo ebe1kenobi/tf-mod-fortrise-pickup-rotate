@@ -1,56 +1,59 @@
-﻿namespace TFModFortRisePickupRotate
+using FortRise;
+using HarmonyLib;
+using TowerFall;
+
+namespace TFModFortRisePickupRotate
 {
-  public class MySession
+  public class MySession : IHookable
   {
     public static int NbRotatePickupActivated { get; set; }
 
-    internal static void Load()
+    public static void Load(IHarmony harmony)
     {
-      On.TowerFall.Session.EndRound += EndRound_patch;
-      On.TowerFall.Session.StartRound += StartRound_patch;
-      On.TowerFall.Session.StartGame += StartGame_patch;
-      On.TowerFall.Session.GotoNextRound += GotoNextRound_patch;
-      On.TowerFall.Session.ctor += ctor_patch;
+      harmony.Patch(
+          AccessTools.DeclaredMethod(typeof(Session), nameof(Session.EndRound)),
+          prefix: new HarmonyMethod(EndRound_patch)
+      );
+      harmony.Patch(
+          AccessTools.DeclaredMethod(typeof(Session), nameof(Session.StartRound)),
+          prefix: new HarmonyMethod(StartRound_patch)
+      );
+      harmony.Patch(
+          AccessTools.DeclaredMethod(typeof(Session), nameof(Session.StartGame)),
+          prefix: new HarmonyMethod(StartGame_patch)
+      );
+      harmony.Patch(
+          AccessTools.DeclaredMethod(typeof(Session), nameof(Session.GotoNextRound)),
+          prefix: new HarmonyMethod(GotoNextRound_patch)
+      );
+      harmony.Patch(
+          AccessTools.DeclaredConstructor(typeof(Session), [typeof(MatchSettings)]),
+          prefix: new HarmonyMethod(ctor_patch)
+      );
     }
 
-    internal static void Unload()
+    public static void StartRound_patch(Session __instance)
     {
-      On.TowerFall.Session.EndRound -= EndRound_patch;
-      On.TowerFall.Session.StartRound -= StartRound_patch;
-      On.TowerFall.Session.StartGame -= StartGame_patch;
-      On.TowerFall.Session.GotoNextRound -= GotoNextRound_patch;
-      On.TowerFall.Session.ctor -= ctor_patch;
-    }
-    public MySession()
-    {
-    }
-
-    public static void StartRound_patch(On.TowerFall.Session.orig_StartRound orig, global::TowerFall.Session self) {
       MyLevel.effect = TypeEffect.None;
-      orig(self);
     }
 
-    public static void EndRound_patch(On.TowerFall.Session.orig_EndRound orig, global::TowerFall.Session self)
+    public static void EndRound_patch(Session __instance)
     {
-      //Logger.Info("EndRound_patch");
       if (MyLevel.effect != TypeEffect.None)
       {
-      //Logger.Info("EndRound_patch2");
         MyLevel.stopRotateEffect();
       }
-      orig(self);
     }
 
-    public static void StartGame_patch(On.TowerFall.Session.orig_StartGame orig, global::TowerFall.Session self)
+    public static void StartGame_patch(Session __instance)
     {
       if (TFModFortRisePickupRotateModule.Settings.periodicity == TFModFortRisePickupRotateSettings.OncePerMatch)
       {
         NbRotatePickupActivated = 0;
       }
-      orig(self);
     }
 
-    public static void GotoNextRound_patch(On.TowerFall.Session.orig_GotoNextRound orig, global::TowerFall.Session self)
+    public static void GotoNextRound_patch(Session __instance)
     {
       if (TFModFortRisePickupRotateModule.Settings.periodicity == TFModFortRisePickupRotateSettings.OncePerRound)
       {
@@ -60,14 +63,11 @@
       {
         NbRotatePickupActivated = 0;
       }
-      orig(self);
     }
 
-    public static void ctor_patch(On.TowerFall.Session.orig_ctor orig, global::TowerFall.Session self, global::TowerFall.MatchSettings settings)
+    public static void ctor_patch(Session __instance, MatchSettings settings)
     {
       NbRotatePickupActivated = 0;
-      orig(self, settings);
     }
-
   }
 }

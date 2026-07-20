@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using FortRise;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -17,15 +17,30 @@ namespace TFModFortRisePickupRotate
     FlipX,
   }
 
-  [CustomPickup("RotatePickup", "0.0")]
-  public class RotatePickup : Pickup
+  // FortRise 4 : attribut [CustomPickup("RotatePickup", "0.0")] + detour sur
+  // Pickup.CreatePickup pour instancier le type custom.
+  // FortRise 5 : enregistrement explicite dans le registre, qui instancie lui-meme
+  // le pickup via son constructeur (Vector2, Vector2). D'ou la disparition du
+  // parametre Pickups et du fichier MyPickup.
+  public class RotatePickup : Pickup, IRegisterable
   {
+    public static IPickupEntry RotateMeta = null!;
+
     // Effet appliqué par ce pickup
     TypeEffect effect = TypeEffect.None;
 
     public GraphicsComponent graphic;
 
-    public RotatePickup(Vector2 position, Vector2 targetPosition, Pickups pickupType)
+    public static void Register(IModContent content, IModRegistry registry)
+    {
+      RotateMeta = registry.Pickups.RegisterPickups("RotatePickup", new()
+      {
+        Name = "RotatePickup",
+        PickupType = typeof(RotatePickup)
+      });
+    }
+
+    public RotatePickup(Vector2 position, Vector2 targetPosition)
         : base(position, targetPosition)
     {
       // Pour du random, réactive ceci :
@@ -38,7 +53,7 @@ namespace TFModFortRisePickupRotate
       }
       if (TFModFortRisePickupRotateModule.Settings.Rotate180) {
         listEffect.Add(TypeEffect.Rotate180);
-      } 
+      }
       if (TFModFortRisePickupRotateModule.Settings.Rotate360) {
         listEffect.Add(TypeEffect.Rotate360);
       }

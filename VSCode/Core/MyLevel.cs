@@ -1,4 +1,6 @@
 ﻿using System;
+using FortRise;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
@@ -8,7 +10,7 @@ using Color = Microsoft.Xna.Framework.Color;
 
 namespace TFModFortRisePickupRotate
 {
-  public class MyLevel {
+  public class MyLevel : IHookable {
     static public TypeEffect effect = TypeEffect.None;
     public static bool sandboxEntityCreated = false;
     private static float flipTime = 0f; 
@@ -19,18 +21,18 @@ namespace TFModFortRisePickupRotate
     private static float effectTimer = 0f;
     private static bool reverseEffect = false;
 
-    internal static void Load()
+    public static void Load(IHarmony harmony)
     {
-      On.TowerFall.Level.Update += Update_patch;
-      On.TowerFall.Level.PostScreen += PostScreen_patch;
-
-    }
-
-    internal static void Unload()
-    {
-      On.TowerFall.Level.Update -= Update_patch;
-      On.TowerFall.Level.PostScreen -= PostScreen_patch;
-
+      harmony.Patch(
+          AccessTools.DeclaredMethod(typeof(Level), nameof(Level.Update)),
+          prefix: new HarmonyMethod(Update_patch)
+      );
+      // PostScreen est entierement remplace quand un effet est actif : le prefix
+      // rend false pour sauter l'original et faire son propre rendu.
+      harmony.Patch(
+          AccessTools.DeclaredMethod(typeof(Level), nameof(Level.PostScreen)),
+          prefix: new HarmonyMethod(PostScreen_patch)
+      );
     }
 
     public static void startRotateEffect(TypeEffect effect)
@@ -59,13 +61,13 @@ namespace TFModFortRisePickupRotate
       rotateTime360 = 0;
     }
 
-    public static void PostScreen_patch(On.TowerFall.Level.orig_PostScreen orig, global::TowerFall.Level self)
+    public static bool PostScreen_patch(Level __instance)
     {
       if (effect == TypeEffect.None)
       {
-        orig(self);
-        return;
+        return true; // rendu vanilla
       }
+      Level self = __instance;
 
       var screen = Engine.Instance.Screen;
       Engine.Instance.GraphicsDevice.Clear(Color.Black);
@@ -267,9 +269,11 @@ namespace TFModFortRisePickupRotate
       {
         self.ReplayRecorder.RecordRender();
       }
+
+      return false; // l'original est remplace
     }
 
-    public static void Update_patch(On.TowerFall.Level.orig_Update orig, global::TowerFall.Level self)
+    public static void Update_patch(Level __instance)
     {
       /// 🔥 COMPTEUR D’EFFET
       if (effectTimer > 0)
@@ -282,7 +286,6 @@ namespace TFModFortRisePickupRotate
           stopRotateEffect();
         }
       }
-      orig(self);
     }
   }
 }

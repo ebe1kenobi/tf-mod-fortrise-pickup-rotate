@@ -1,7 +1,13 @@
 {
-	"name": "Pickup Rotate",
-	"version": "0.0.1",
+	"name": "PickupRotate",
+	"version": "1.0.0",
 	"author": "ebe1.kenobi",
 	"description": "New pickup to flip or rotate the screen",
-	"dll": "TFModFortRisePickupRotate.dll"
+	"dll": "TFModFortRisePickupRotate.dll",
+	"dependencies": [
+		{
+			"name": "FortRise",
+			"version": "5.2.3"
+		}
+	]
 }

@@ -1,67 +1,58 @@
-﻿using FortRise;
-using System.Diagnostics;
-using Monocle;
-using TowerFall;
-using Microsoft.Xna.Framework;
-using MonoMod.ModInterop;
 using System;
+using System.Diagnostics;
+using FortRise;
+using Microsoft.Extensions.Logging;
 
 namespace TFModFortRisePickupRotate
 {
-  [Fort("com.ebe1.kenobi.TFModFortRisePickupRotate", "TFModFortRisePickupRotate")]
-  public class TFModFortRisePickupRotateModule : FortModule
+  public class TFModFortRisePickupRotateModule : Mod
   {
     public static TFModFortRisePickupRotateModule Instance;
-    public static Atlas RotateAtlas;
-    public override Type SettingsType => typeof(TFModFortRisePickupRotateSettings);
-    public static TFModFortRisePickupRotateSettings Settings => (TFModFortRisePickupRotateSettings)Instance.InternalSettings;
 
-    public TFModFortRisePickupRotateModule()
+    private static Type[] Registerables = [
+        typeof(TextureRegistry),
+        typeof(RotatePickup),
+        typeof(Variants),
+    ];
+
+    internal Type[] Hookables = [
+        typeof(MyTreasureSpawner),
+        typeof(MySession),
+        typeof(MyLevel),
+    ];
+
+    public static TFModFortRisePickupRotateSettings Settings => Instance.GetSettings<TFModFortRisePickupRotateSettings>()!;
+
+    public TFModFortRisePickupRotateModule(IModContent content, IModuleContext context, ILogger logger) : base(content, context, logger)
     {
       if (!Debugger.IsAttached)
       {
         //Debugger.Launch(); // Proposera d’attacher Visual Studio
       }
       Instance = this;
-      Logger.Init("PickupRotate");
+
+      foreach (var registerable in Registerables)
+      {
+        registerable.GetMethod(nameof(IRegisterable.Register))!.Invoke(null, [content, context.Registry]);
+      }
+
+      foreach (var hookable in Hookables)
+      {
+        hookable.GetMethod(nameof(IHookable.Load))!.Invoke(null, [context.Harmony]);
+      }
     }
 
-    public override void LoadContent()
+    public override ModuleSettings CreateSettings()
     {
-      RotateAtlas = Content.LoadAtlas("Atlas/atlas.xml", "Atlas/atlas.png");
+      return new TFModFortRisePickupRotateSettings();
     }
 
-    public override void Load()
-    {
-      MyTreasureSpawner.Load();
-      MySession.Load();
-      MyLevel.Load();
-      MyPickup.Load();
-      //MyRoundLogic.Load();
-      
-    }
-
-    public override void Unload()
-    {
-      MyTreasureSpawner.Unload();
-      MySession.Unload();
-      MyLevel.Unload();
-      MyPickup.Unload();
-      //MyRoundLogic.Unload();
-    }
-
+    // Le pickup est actif si le variant "Rotate" est selectionne OU si le reglage
+    // "activated" force son apparition. FortRise 4 utilisait
+    // VariantManager.GetCustomVariant("Rotate") ; FortRise 5 : l'entree du registre.
     public static bool activated()
     {
-      return VariantManager.GetCustomVariant("Rotate") || Settings.activated;
-    }
-
-    public override void OnVariantsRegister(VariantManager manager, bool noPerPlayer = false)
-    {
-      var rotate = new CustomVariantInfo(
-          "Rotate", VariantManager.GetVariantIconFromName("Rotate", RotateAtlas),
-          CustomVariantFlags.None
-          );
-      manager.AddVariant(rotate);
+      return Variants.Rotate.IsActive() || Settings.activated;
     }
   }
 }
