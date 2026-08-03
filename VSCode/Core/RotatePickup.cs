@@ -33,10 +33,15 @@ namespace TFModFortRisePickupRotate
 
     public static void Register(IModContent content, IModRegistry registry)
     {
+      // FortRise 5.2.3+ : PickupConfiguration exige une fabrique CreatePickup
+      // (Func<CreatePickupArgs, Pickup>). Auparavant le registre instanciait
+      // lui-meme le type via un constructeur (Vector2, Vector2) ; c'est desormais
+      // au mod de construire le pickup, ce qui donne aussi acces au PlayerIndex.
       RotateMeta = registry.Pickups.RegisterPickups("RotatePickup", new()
       {
         Name = "RotatePickup",
-        PickupType = typeof(RotatePickup)
+        PickupType = typeof(RotatePickup),
+        CreatePickup = args => new RotatePickup(args.Position, args.TargetPosition)
       });
     }
 
