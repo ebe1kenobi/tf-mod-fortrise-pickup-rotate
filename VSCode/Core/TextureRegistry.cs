@@ -21,8 +21,13 @@ namespace TFModFortRisePickupRotate
   {
     public static ISubtextureEntry RotateIcon { get; private set; } = null!;
 
+    // Sprite de l'objet a ramasser, 16x16 (taille du collider du pickup). Simple
+    // PNG, sans passer par l'atlas : il n'a qu'une seule region.
+    public static ISubtextureEntry RotatePickupSprite { get; private set; } = null!;
+
     private const string AtlasXmlPath = "Content/Atlas/atlas.xml";
     private const string AtlasPngPath = "Content/Atlas/atlas.png";
+    private const string PickupPngPath = "Content/Atlas/rotatepickup.png";
     private const string IconName = "variants/rotate";
 
     public static void Register(IModContent content, IModRegistry registry)
@@ -32,6 +37,9 @@ namespace TFModFortRisePickupRotate
           () => LoadIconSubtexture(content),
           SubtextureAtlasDestination.Atlas
       );
+
+      RotatePickupSprite = registry.Subtextures.RegisterTexture(
+          content.Root.GetRelativePath(PickupPngPath));
     }
 
     // Callback resolu paresseusement (une fois le GraphicsDevice pret) : lit la

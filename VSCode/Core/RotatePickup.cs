@@ -78,7 +78,24 @@ namespace TFModFortRisePickupRotate
       this.Collider = new Hitbox(16f, 16f, -8f, -8f);
       this.Tag(GameTags.PlayerCollectible);
 
-      this.graphic = new Image(TFGame.Atlas["pickups/arrowPickup"]); //todo changer le sprite
+      // Sprite livré avec le mod (tools/make_icons.py). Lu ici et pas au chargement
+      // du module : la texture n'est mise sur le GPU qu'au premier accès à
+      // Subtexture, ce qui exige un périphérique graphique — il n'existe pas encore
+      // quand les mods sont construits. Ici on est en plein jeu.
+      Subtexture texture = null;
+      try
+      {
+        if (TextureRegistry.RotatePickupSprite != null)
+          texture = TextureRegistry.RotatePickupSprite.Subtexture;
+      }
+      catch (System.Exception ex)
+      {
+        Logger.Info($"[RotatePickup] sprite illisible, repli sur le sprite du jeu : {ex.Message}");
+      }
+
+      // Repli sur un sprite du jeu plutôt que pas de sprite du tout : un pickup
+      // invisible serait pire qu'un pickup mal illustré.
+      this.graphic = new Image(texture ?? TFGame.Atlas["pickups/arrowPickup"]);
       this.graphic.CenterOrigin();
       this.Add(this.graphic);
     }
