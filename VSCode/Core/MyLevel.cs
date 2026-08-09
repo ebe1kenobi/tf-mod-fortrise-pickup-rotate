@@ -75,6 +75,29 @@ namespace TFModFortRisePickupRotate
       // Centre de l’écran
       var center = new Vector2(screen.Width * 0.5f, screen.Height * 0.5f);
 
+      // Placement de l'image a l'ecran, reconstruit ici plutot que pris dans
+      // Screen.Matrix.
+      //
+      // Le rendu d'origine ne se sert pas de cette matrice : Screen.Render() dessine
+      // le render target dans le rectangle DrawRect. Screen.Matrix n'est donc lue par
+      // personne dans le jeu, et sa justesse n'est jamais verifiee - or elle est
+      // fausse des qu'on change la taille de l'ecran. Monocle.Screen.Resize contient
+      // "this.width = height" : height n'y est jamais affecte et width est ecrase. Le
+      // passage en mode large (WiderSet appelle Resize(420, 240, 3)) laisse donc width
+      // a 240, ce qui fausse ScaledWidth, donc le centrage DrawRect.X, donc la
+      // translation que porte Screen.Matrix - d'ou une image decalee.
+      //
+      // On repart de ce que le rendu d'origine utilise vraiment, DrawRect et la taille
+      // du render target : le cadrage colle au pixel pres, en fenetre comme en plein
+      // ecran, et reste juste quelle que soit la largeur.
+      var renderTarget = screen.RenderTarget;
+      Matrix placement =
+          Matrix.CreateScale(
+              screen.DrawRect.Width / (float)renderTarget.Width,
+              screen.DrawRect.Height / (float)renderTarget.Height,
+              1f) *
+          Matrix.CreateTranslation(screen.DrawRect.X, screen.DrawRect.Y, 0f);
+
       Matrix transform = Matrix.Identity;
 
       if (effect == TypeEffect.RotateRight90 || effect == TypeEffect.RotateLeft90) {
@@ -113,7 +136,7 @@ namespace TFModFortRisePickupRotate
             Matrix.CreateScale(scale) *
             Matrix.CreateRotationZ(angle) *
             Matrix.CreateTranslation(center.X, center.Y, 0f) *
-            screen.Matrix;
+            placement;
 
         // Si retour terminé → effet OFF
         if (reverseEffect && rotateTime <= 0f)
@@ -139,7 +162,7 @@ namespace TFModFortRisePickupRotate
             Matrix.CreateTranslation(-center.X, -center.Y, 0f) *
             Matrix.CreateRotationZ(angle) *
             Matrix.CreateTranslation(center.X, center.Y, 0f) *
-            screen.Matrix;
+            placement;
 
         if (reverseEffect && rotateTime <= 0f)
         {
@@ -162,7 +185,7 @@ namespace TFModFortRisePickupRotate
             Matrix.CreateTranslation(-center.X, -center.Y, 0f) *
             Matrix.CreateScale(scaleX, 1f, 1f) *
             Matrix.CreateTranslation(center.X, center.Y, 0f) *
-            screen.Matrix;
+            placement;
 
         if (reverseEffect && flipTime <= 0f)
         {
@@ -185,7 +208,7 @@ namespace TFModFortRisePickupRotate
             Matrix.CreateTranslation(-center.X, -center.Y, 0f) *
             Matrix.CreateScale(1f, scaleY, 1f) *
             Matrix.CreateTranslation(center.X, center.Y, 0f) *
-            screen.Matrix;
+            placement;
 
         if (reverseEffect && flipTime <= 0f)
         {
@@ -234,7 +257,7 @@ namespace TFModFortRisePickupRotate
             Matrix.CreateScale(scale) *
             Matrix.CreateRotationZ(angle) *
             Matrix.CreateTranslation(center.X, center.Y, 0f) *
-            screen.Matrix;
+            placement;
       }
 
       // ---- Rendu final ----
