@@ -20,8 +20,12 @@ namespace TFModFortRisePickupRotate
       settings.CreateNumber("Effect 360 Time", Effect360Time, (x) => Effect360Time = x, 5, 100);
     }
 
+    // Eteint par defaut : c'est la VARIANTE qui doit decider. Allume, l'objet
+    // apparaissait dans des manches ou personne ne l'avait demande, simplement parce
+    // que le mod etait installe - installer un mod ne doit pas changer le jeu tant
+    // qu'on ne l'a pas choisi.
     //[SettingsName("Pickup activated even \n\nwhen variant is not selected")]
-    public bool activated { get; set; } = true;
+    public bool activated { get; set; } = false;
 
     /// <summary>
     /// Le cran d'apparition, index dans Rarity.Steps.
