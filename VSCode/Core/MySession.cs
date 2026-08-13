@@ -4,10 +4,16 @@ using TowerFall;
 
 namespace TFModFortRisePickupRotate
 {
+  /// <summary>
+  /// Remet l'ecran droit entre les manches.
+  ///
+  /// Cette classe tenait aussi le compteur "combien de fois le pickup est deja
+  /// apparu", remis a zero par match ou par manche selon la periodicite. Il a disparu
+  /// avec elle : l'apparition passe maintenant par le tirage pondere du jeu (voir
+  /// TreasureRates), qui n'a pas de plafond a compter.
+  /// </summary>
   public class MySession : IHookable
   {
-    public static int NbRotatePickupActivated { get; set; }
-
     public static void Load(IHarmony harmony)
     {
       harmony.Patch(
@@ -17,18 +23,6 @@ namespace TFModFortRisePickupRotate
       harmony.Patch(
           AccessTools.DeclaredMethod(typeof(Session), nameof(Session.StartRound)),
           prefix: new HarmonyMethod(StartRound_patch)
-      );
-      harmony.Patch(
-          AccessTools.DeclaredMethod(typeof(Session), nameof(Session.StartGame)),
-          prefix: new HarmonyMethod(StartGame_patch)
-      );
-      harmony.Patch(
-          AccessTools.DeclaredMethod(typeof(Session), nameof(Session.GotoNextRound)),
-          prefix: new HarmonyMethod(GotoNextRound_patch)
-      );
-      harmony.Patch(
-          AccessTools.DeclaredConstructor(typeof(Session), [typeof(MatchSettings)]),
-          prefix: new HarmonyMethod(ctor_patch)
       );
     }
 
@@ -43,31 +37,6 @@ namespace TFModFortRisePickupRotate
       {
         MyLevel.stopRotateEffect();
       }
-    }
-
-    public static void StartGame_patch(Session __instance)
-    {
-      if (TFModFortRisePickupRotateModule.Settings.periodicity == TFModFortRisePickupRotateSettings.OncePerMatch)
-      {
-        NbRotatePickupActivated = 0;
-      }
-    }
-
-    public static void GotoNextRound_patch(Session __instance)
-    {
-      if (TFModFortRisePickupRotateModule.Settings.periodicity == TFModFortRisePickupRotateSettings.OncePerRound)
-      {
-        NbRotatePickupActivated = 0;
-      }
-      if (TFModFortRisePickupRotateModule.Settings.periodicity == TFModFortRisePickupRotateSettings.Test)
-      {
-        NbRotatePickupActivated = 0;
-      }
-    }
-
-    public static void ctor_patch(Session __instance, MatchSettings settings)
-    {
-      NbRotatePickupActivated = 0;
     }
   }
 }

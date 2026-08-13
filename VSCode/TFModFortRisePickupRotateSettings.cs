@@ -4,21 +4,12 @@ namespace TFModFortRisePickupRotate
 {
   public class TFModFortRisePickupRotateSettings : ModuleSettings
   {
-    // CreateOptions travaille sur des libelles et renvoie (libelle, index) :
-    // l'index correspond aux constantes ci-dessous, donc periodicity reste un int.
-    private static readonly string[] PeriodicityNames = ["OncePerMatch", "OncePerRound", "Test"];
-
-    private static string PeriodicityName(int value)
-    {
-      if (value < 0 || value >= PeriodicityNames.Length)
-        return PeriodicityNames[0];
-      return PeriodicityNames[value];
-    }
-
     public override void Create(ISettingsCreate settings)
     {
       settings.CreateOnOff("Pickup activated even \n\nwhen variant is not selected", activated, (x) => activated = x);
-      settings.CreateNumber("Treasure Rate 1 chance on N, choose N", treasureRate, (x) => treasureRate = x, 10, 100);
+      settings.CreateOptions("Periodicity", periodicity, ["Normal", "Test"], (x) => periodicity = x.Item1);
+      settings.CreateOptions("Treasure rate", Rarity.LabelOf(treasureRarity), Rarity.Labels,
+          (x) => treasureRarity = x.Item2);
       settings.CreateOnOff("RotateRight90", RotateRight90, (x) => RotateRight90 = x);
       settings.CreateOnOff("RotateLeft90", RotateLeft90, (x) => RotateLeft90 = x);
       settings.CreateOnOff("Rotate180", Rotate180, (x) => Rotate180 = x);
@@ -27,15 +18,22 @@ namespace TFModFortRisePickupRotate
       settings.CreateOnOff("FlipX", FlipX, (x) => FlipX = x);
       settings.CreateNumber("Effect Time", EffectTime, (x) => EffectTime = x, 5, 100);
       settings.CreateNumber("Effect 360 Time", Effect360Time, (x) => Effect360Time = x, 5, 100);
-      settings.CreateOptions("Periodicity", PeriodicityName(periodicity), PeriodicityNames, (x) => periodicity = x.Item2);
     }
 
     //[SettingsName("Pickup activated even \n\nwhen variant is not selected")]
     public bool activated { get; set; } = true;
 
-    //[SettingsName("Treasure Rate 1 chance on N, choose N")]
-    //[SettingsNumber(10, 100)]
-    public int treasureRate { get; set; } = 100;
+    /// <summary>
+    /// Le cran d'apparition, index dans Rarity.Steps.
+    ///
+    /// Un index et non le taux lui-meme : c'est ce que rend la liste de l'ecran des
+    /// options, et cela evite d'avoir a relire une valeur qui ne serait plus dans
+    /// l'echelle. Le defaut est celui de la bombe, l'objet rare du jeu - l'ancien
+    /// reglage partait de l'equivalent d'une fleche, ce qui etait beaucoup.
+    ///
+    /// Sans effet en mode TEST, qui impose son propre taux.
+    /// </summary>
+    public int treasureRarity { get; set; } = Rarity.Default;
 
     public bool RotateRight90 { get; set; } = true;
     public bool RotateLeft90 { get; set; } = true;
@@ -50,11 +48,19 @@ namespace TFModFortRisePickupRotate
     //[SettingsNumber(5, 100)]
     public int Effect360Time { get; set; } = 20;
 
-    public const int OncePerMatch = 0;
-    public const int OncePerRound = 1;
-    public const int Test = 2;
-
-    //[SettingsOptions("OncePerMatch", "OncePerRound", "Test")]
-    public int periodicity { get; set; } = 2;
+    /// <summary>
+    /// "Normal" ou "Test".
+    ///
+    /// Les anciens crans OncePerMatch et OncePerRound ont disparu avec la methode qui
+    /// les portait : ils comptaient les apparitions pour en imposer une par match ou
+    /// par manche, ce qu'un tirage pondere ne sait pas exprimer. Normal laisse le jeu
+    /// tirer - donc obeir aux variantes et au jeu d'objets de la tour - et Test force
+    /// l'apparition pour essayer.
+    ///
+    /// Le convertisseur est obligatoire : ce reglage etait un ENTIER, et un fichier de
+    /// sauvegarde deja ecrit empeche le jeu de demarrer sans lui.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(PeriodicityJsonConverter))]
+    public string periodicity { get; set; } = "Normal";
   }
 }

@@ -40,6 +40,10 @@ namespace TFModFortRisePickupRotate
       RotateMeta = registry.Pickups.RegisterPickups("RotatePickup", new()
       {
         Name = "RotatePickup",
+        // Une unite de masque vaut un milliieme, le taux le plus bas du jeu : c'est
+        // ce qui permet au reglage de descendre sous 1 alors que l'API ne sait
+        // ajouter que des entiers. Voir Rarity.
+        Chance = Rarity.Unit,
         PickupType = typeof(RotatePickup),
         CreatePickup = args => new RotatePickup(args.Position, args.TargetPosition)
       });
