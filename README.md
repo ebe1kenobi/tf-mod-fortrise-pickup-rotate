@@ -1,4 +1,7 @@
+
 # Rotate
+
+<img width="640" height="464" alt="rotate" src="https://github.com/user-attachments/assets/76a30246-c362-46d6-8bef-78cc60c8472f" />
 
 Adds a pickup that **rotates or flips the screen**: 90 degrees left or right, half
 turn, full turn, horizontal or vertical mirror. Each effect is toggled on its own in
