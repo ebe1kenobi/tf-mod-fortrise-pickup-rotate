@@ -1,4 +1,4 @@
-# PickupRotate
+# Rotate
 
 Adds a pickup that **rotates or flips the screen**: 90 degrees left or right, half
 turn, full turn, horizontal or vertical mirror. Each effect is toggled on its own in
@@ -26,6 +26,13 @@ written to disk when the window closes.
 > All my mods declare the same `Header` (`EBE1 MODS`), so their variants are
 > grouped into a **single column** of the variants screen instead of one column
 > per mod.
+
+
+<img width="689" height="567" alt="image" src="https://github.com/user-attachments/assets/83fe4b69-40e3-4afd-8c31-52f7c9f0b033" />
+
+<img width="683" height="238" alt="image" src="https://github.com/user-attachments/assets/bddfb710-ae85-4cd9-992d-8369d324a6ae" />
+
+<img width="825" height="672" alt="image" src="https://github.com/user-attachments/assets/5e26b5c3-cf20-471a-9e55-df0408fc82af" />
 
 ## Settings
 
