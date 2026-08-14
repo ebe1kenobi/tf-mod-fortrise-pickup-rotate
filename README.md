@@ -54,6 +54,30 @@ The upside over writing into `TreasureRates` directly: the game's weighted draw
 still applies afterwards, so variant exclusions, the tower's item set and arrow
 shuffle are all respected, and several chests can hold it.
 
+> **The pickup is off by default.** It is the *variant* that decides: tick it on the
+> versus screen and the item appears. Installing a mod should not change the game until
+> you have asked for it - the item used to show up in rounds where nobody had wanted it,
+> simply because the mod was present.
+
+## Settings from the variant screen
+
+Every setting below is also reachable **without leaving the versus screen**: highlight
+this mod's variant box and press the **left upper shoulder** (`Alt2`). A small window
+opens on the settings that matter, and the button is announced in the guide at the
+bottom.
+
+Changes are written to disk immediately. FortRise only saves settings when leaving its
+own Options menu, so a value changed here - or right before quitting - used to be lost.
+
+> The window recognises its own box by the label the game *displays*, ignoring case and
+> spaces. Comparing it letter for letter with the registered name never matched: the game
+> shows variant titles in **capitals** (`BLACKHOLE` for `BlackHole`), and the failure was
+> completely silent - no sound, no message, nothing.
+>
+> It is also re-anchored on the camera every frame. Menu entities live on a layer that
+> **scrolls**, so a window placed at a fixed position stayed where the list was when it
+> opened - drawn, but above the visible area as soon as you had scrolled down.
+
 ## Build / deployment
 
 | Script | Purpose |
