@@ -64,7 +64,6 @@ namespace TFModFortRisePickupRotate
     /// Le convertisseur est obligatoire : ce reglage etait un ENTIER, et un fichier de
     /// sauvegarde deja ecrit empeche le jeu de demarrer sans lui.
     /// </summary>
-    [System.Text.Json.Serialization.JsonConverter(typeof(PeriodicityJsonConverter))]
     public string periodicity { get; set; } = "Normal";
   }
 }
