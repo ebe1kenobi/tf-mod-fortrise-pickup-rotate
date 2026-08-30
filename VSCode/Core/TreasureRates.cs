@@ -107,17 +107,32 @@ namespace TFModFortRisePickupRotate
     /// </summary>
     private static int WantedRate()
     {
+      // **Un taux nul DIT pourquoi.** Il y a trois raisons de ne pas apparaitre et elles
+      // se ressemblent toutes a l'ecran : rien ne sort du coffre. Sans la raison, on
+      // passe la soiree a chercher un defaut la ou il n'y a qu'une case decochee - ce
+      // qui est exactement arrive, deux fois.
       if (TFModFortRisePickupRotateModule.Settings.periodicity == "Test")
       {
+        Logger.Info("[Rates] la rotation : taux 0 car periodicite TEST "
+            + "(le taux est alors pose de force apres le tirage)");
         return 0;
       }
 
       if (!TFModFortRisePickupRotateModule.activated())
       {
+        Logger.Info("[Rates] la rotation : taux 0 car la variante n'est pas cochee - "
+            + "la cocher, ou activer le reglage 'Pickup activated' du mod");
         return 0;
       }
 
-      return Rarity.UnitsOf(TFModFortRisePickupRotateModule.Settings.treasureRarity);
+      int units = Rarity.UnitsOf(TFModFortRisePickupRotateModule.Settings.treasureRarity);
+
+      if (units <= 0)
+      {
+        Logger.Info("[Rates] la rotation : taux 0 car le cran d'apparition est au minimum");
+      }
+
+      return units;
     }
   }
 }
